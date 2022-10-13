@@ -121,66 +121,41 @@ app.delete("/remove/:id", async (req, res) => {
   }
 });
 
-//New Login route
-app.post("/login", async (req, res) => {
+
+//Login a user using email and password
+app.post("/login", (req, res) => {
+  //email and password
   const email = req.body.email;
   const password = req.body.password;
 
+  //find user exist or not
   User.findOne({ email }).then((user) => {
-    //check if the email is invalid
-    if (!user) return res.status(400).json({ message: "Invalid Email" });
+    //if user not exist than return status 400
+    if (!user) return res.status(400).json({ msg: "Email does not exist" });
 
-    //if email is valid then check for the password and
-    //using the bcrypt.compare to check what the user typed and what we have in our DB
-
+    //if user exist than compare password
+    //password comes from the user
+    //user.password comes from the database
     bcrypt.compare(password, user.password, (err, data) => {
-      if (err) return err;
+      //if error than throw error
+      if (err) throw err;
 
-      //Check for successful login or failed
+      //if both match than you can do anything
       if (data) {
-        res.status(200).json({ message: "Welcome back user" });
+        return res.status(200).json({ message: "You are logged in successfully" });
       } else {
-        res.status(400).json({ message: "Invalid Password" });
+        return res.status(401).json({ message: "Invalid Password" });
       }
     });
+
   });
+
 });
-
-//Login a user using email and password
-// app.post("/login", (req, res) => {
-//   //email and password
-//   const email = req.body.email;
-//   const password = req.body.password;
-
-//   //find user exist or not
-//   User.findOne({ email }).then((user) => {
-//     //if user not exist than return status 400
-//     if (!user) return res.status(400).json({ msg: "Email does not exist" });
-
-//     //if user exist than compare password
-//     //password comes from the user
-//     //user.password comes from the database
-//     bcrypt.compare(password, user.password, (err, data) => {
-//       //if error than throw error
-//       if (err) throw err;
-
-//       //if both match than you can do anything
-//       if (data) {
-//         return res.status(200).json({ message: "You are logged in successfully" });
-//       } else {
-//         return res.status(401).json({ message: "Invalid Password" });
-//       }
-//     });
-
-//   });
-
-// });
 
 app.get("/", (req, res) => {
   res.redirect(__dirname + "/index.html");
 });
 
-app.get("/display", (req, res) => {});
 
 app.listen(port, () => {
   console.log("listening on port " + port);
